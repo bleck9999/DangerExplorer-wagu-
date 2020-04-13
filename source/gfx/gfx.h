@@ -26,6 +26,7 @@
 #define EPRINTFARGS(text, args...) gfx_printf("%k"text"%k\n", 0xFFFF0000, args, 0xFFCCCCCC)
 #define WPRINTF(text) gfx_printf("%k"text"%k\n", 0xFFFFDD00, 0xFFCCCCCC)
 #define WPRINTFARGS(text, args...) gfx_printf("%k"text"%k\n", 0xFFFFDD00, args, 0xFFCCCCCC)
+#define YLEFT 1279
 
 void gfx_init_ctxt(u32 *fb, u32 width, u32 height, u32 stride);
 void gfx_clear_grey(u8 color);

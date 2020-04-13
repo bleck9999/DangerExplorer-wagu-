@@ -171,8 +171,8 @@ void gfx_con_getpos(u32 *x, u32 *y)
 
 void gfx_con_setpos(u32 x, u32 y)
 {
-	gfx_con.x = x;
-	gfx_con.y = y;
+	gfx_con.x = y;
+	gfx_con.y = (YLEFT - x);
 }
 
 void gfx_putc(char c)
@@ -196,44 +196,53 @@ void gfx_putc(char c)
 						if (v & 1)
 						{
 							*fb = gfx_con.fgcol;
-							fb++;
+							fb -= gfx_ctxt.stride;
 							*fb = gfx_con.fgcol;
 						}
 						else if (gfx_con.fillbg)
 						{
 							*fb = gfx_con.bgcol;
-							fb++;
+							fb -= gfx_ctxt.stride;
 							*fb = gfx_con.bgcol;
 						}
 						else
-							fb++;
+							fb -= gfx_ctxt.stride;
 						v >>= 1;
-						fb++;
+						fb -= gfx_ctxt.stride;
 					}
-					fb += gfx_ctxt.stride - 16;
+					//fb += gfx_ctxt.stride - 16;
+					//fb = fbtop + 2;
+					fb += (gfx_ctxt.stride * 16) + 1;
 					v = *cbuf;
 				}
 				cbuf++;
 			}
+			/*
 			gfx_con.x += 16;
 			if (gfx_con.x >= gfx_ctxt.width - 16) {
 				gfx_con.x = 0;
 				gfx_con.y += 16;
 			}
+			*/
+			gfx_con.y -= 16;
+			if (gfx_con.y < 16){
+				gfx_con.y = YLEFT;
+				gfx_con.x += 16;
+			}
 		}
 		else if (c == '\n')
 		{
-			gfx_con.x = 0;
-			gfx_con.y +=16;
-			if (gfx_con.y > gfx_ctxt.height - 16)
-				gfx_con.y = 0;
+			gfx_con.y = YLEFT;
+			gfx_con.x += 16;
+			if (gfx_con.x > gfx_ctxt.width - 16)
+				gfx_con.x = 0;
 		}
 		else if (c == '\e')
-			gfx_con.x = 672;
+			gfx_con.y = 607;
 		else if (c == '\a')
-			gfx_con.x = 608;
+			gfx_con.y = 671;
 		else if (c == '\r')
-			gfx_con.x = 0;
+			gfx_con.y = YLEFT;
 
 		break;
 	case 8:
@@ -252,24 +261,25 @@ void gfx_putc(char c)
 					else if (gfx_con.fillbg)
 						*fb = gfx_con.bgcol;
 					v >>= 1;
-					fb++;
+					fb -= gfx_ctxt.stride;
 				}
-				fb += gfx_ctxt.stride - 8;
+				fb += (gfx_ctxt.stride * 8) + 1;
 			}
-			gfx_con.x += 8;
-			if (gfx_con.x >= gfx_ctxt.width - 8) {
-				gfx_con.x = 0;
-				gfx_con.y += 8;
+
+			gfx_con.y -= 8;
+			if (gfx_con.y < 8){
+				gfx_con.y = YLEFT;
+				gfx_con.x += 8;
 			}
+
 		}
 		else if (c == '\n')
 		{
-			gfx_con.x = 0;
-			gfx_con.y += 8;
-			if (gfx_con.y > gfx_ctxt.height - 8)
-				gfx_con.y = 0;
+			gfx_con.y = YLEFT;
+			gfx_con.x += 8;
+			if (gfx_con.x > gfx_ctxt.width - 8)
+				gfx_con.x = 0;
 		}
-
 		break;
 	}
 }
@@ -514,11 +524,19 @@ void gfx_set_rect_grey(const u8 *buf, u32 size_x, u32 size_y, u32 pos_x, u32 pos
 }
 
 void gfx_box(int x0, int y0, int x1, int y1, u32 color){
+	
 	for (int x = x0; x < x1 + 1; x++){
 		for (int y = y0; y < y1 + 1; y++){
 			gfx_set_pixel(x, y, color);
 		}
 	}
+	/*
+	for (int y = YLEFT - y0; y > (YLEFT - y1); y--){
+		for (int x = x0; x < x1 + 1; x++){
+			gfx_set_pixel(y, x, color);
+		}
+	}
+	*/
 }
 
 void gfx_set_rect_rgb(const u8 *buf, u32 size_x, u32 size_y, u32 pos_x, u32 pos_y)

@@ -68,7 +68,6 @@ void MainMenu_Tools(){
             break;
         case TOOLS_DISPLAY_GPIO:
             displaygpio();
-            //makeMmcMenu(SYSMMC);
             break;
         case TOOLS_DUMPFIRMWARE:
             dumpfirmware(SYSMMC);

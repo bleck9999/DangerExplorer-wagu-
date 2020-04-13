@@ -19,11 +19,11 @@ void gfx_clearscreen(){
     SWAPCOLOR(COLOR_DEFAULT);
     SWAPBGCOLOR(COLOR_WHITE);
 
-    gfx_box(0, 1263, 719, 1279, COLOR_WHITE);
-    gfx_con_setpos(0, 1263);
+    gfx_box(703, 0, 719, 1279, COLOR_WHITE);
+    gfx_con_setpos(0, 703);
     gfx_printf("Move: Vol+/- | Select: Pow | Battery: %3d%%", battery >> 8);
 
-    gfx_box(0, 0, 719, 15, COLOR_WHITE);
+    gfx_box(0, 0, 15, 1279, COLOR_WHITE);
     gfx_con_setpos(0, 0);
     gfx_printf("Tegraexplorer v1.5.1\n");
 
