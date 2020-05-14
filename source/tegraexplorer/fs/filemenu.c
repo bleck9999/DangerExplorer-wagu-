@@ -217,13 +217,11 @@ int filemenu(menu_entry file){
             hidWait();
             break;
         case FILE_SIGN:
-            if (gfx_defaultWaitMenu("WARNING!\n\nThis should only be used if you know what signing and a save is\nDo not do this if you don't know what this does\n\nRequires you to have a prod.keys located in the switch folder\n", 5)){
-                gfx_clearscreen();
-                gfx_printf("Signing save...\n");
-                if (save_sign("sd:/switch/prod.keys", fsutil_getnextloc(currentpath, file.name))){
-                    gfx_printf("Done!\nPress any key to exit");
-                    hidWait();
-                }
+            gfx_clearscreen();
+            gfx_printf("Signing save...\n");
+            if (save_sign("sd:/switch/prod.keys", fsutil_getnextloc(currentpath, file.name))){
+                gfx_printf("Done!\nPress any key to exit");
+                hidWait();
             }
 
             break;
