@@ -93,15 +93,12 @@ int foldermenu(){
             break;
         case DIR_DELETEFOLDER:
             gfx_clearscreen();
-            if (gfx_defaultWaitMenu("Do you want to delete this folder?\nThe entire folder, with all subcontents will be deleted!", 2)){
-                gfx_clearscreen();
-                gfx_printf("\nDeleting folder, please wait...\n");
+            gfx_printf("\nDeleting folder, please wait...\n");
 
-                fsact_del_recursive(currentpath);
+            fsact_del_recursive(currentpath);
 
-                fsreader_writecurpath(fsutil_getprevloc(currentpath));
-                fsreader_readfolder(currentpath);
-            }
+            fsreader_writecurpath(fsutil_getprevloc(currentpath));
+            fsreader_readfolder(currentpath);
             break;
         case DIR_RENAME:;
             char *prevLoc, *dirName;
