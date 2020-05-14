@@ -17,12 +17,17 @@
 #include "fs/fsmenu.h"
 #include "emmc/emmcoperations.h"
 #include "emmc/emmcmenu.h"
-
+#include "../storage/nx_sd.h"
+//#include "../hid/joycon.h"
+#include "../hid/hid.h"
+/*
 extern bool sd_mount();
 extern void sd_unmount();
+*/
 extern int launch_payload(char *path);
 extern bool sd_inited;
 extern bool sd_mounted;
+extern bool disableB;
 
 int res = 0, meter = 0;
 
@@ -31,27 +36,13 @@ void MainMenu_SDCard(){
 }
 
 void MainMenu_EMMC(){
-    gfx_clearscreen();
-    gfx_printf("You're about to enter EMMC\nModifying anything here\n        can result in a BRICK!\n\nPlease only continue\n    if you know what you're doing\n\nPress Vol+/- to return\n");
-    if (gfx_makewaitmenu("Press Power to enter", 4)){
-        /*
-        connect_mmc(SYSMMC);
-
-        if (!mount_mmc(emmc_fs_entries[res - 2], res - 1))
-            fileexplorer("emmc:/", 1);
-        */
+    if (gfx_defaultWaitMenu("You're about to enter EMMC\nModifying anything here can result in a BRICK!\n\nPlease only continue if you know what you're doing", 4)){
        makeMmcMenu(SYSMMC);
     }
 }
 
 void MainMenu_EMUMMC(){
-    /*
-    connect_mmc(EMUMMC);
-
-    if (!mount_mmc(emmc_fs_entries[res - 5], res - 4))
-        fileexplorer("emmc:/", 1);
-    */
-   makeMmcMenu(EMUMMC);
+    makeMmcMenu(EMUMMC);
 }
 
 void MainMenu_MountSD(){
@@ -59,8 +50,7 @@ void MainMenu_MountSD(){
 }
 
 void MainMenu_Tools(){
-    //res = makemenu(toolsmenu, 8);
-    res = menu_make(mainmenu_tools, 5, "-- Tools Menu --");
+    res = menu_make(mainmenu_tools, 4, "-- Tools Menu --");
 
     switch(res){
         case TOOLS_DISPLAY_INFO:
@@ -68,27 +58,18 @@ void MainMenu_Tools(){
             break;
         case TOOLS_DISPLAY_GPIO:
             displaygpio();
-            //makeMmcMenu(SYSMMC);
             break;
         case TOOLS_DUMPFIRMWARE:
             dumpfirmware(SYSMMC);
-            break;
-        case TOOLS_DUMPUSERSAVE:
-            if ((res = utils_mmcMenu()) > 0)
-                dumpusersaves(res);
-
             break;
     }
 }
 
 void MainMenu_SDFormat(){
-    //res = makemenu(formatmenu, 4);
     res = menu_make(mainmenu_format, 3, "-- Format Menu --");
 
     if (res > 0){
-        gfx_clearscreen();
-        gfx_printf("Are you sure you want to format your sd?\nThis will delete everything on your SD card\nThis action is irreversible!\n\nPress Vol+/- to cancel\n");
-        if(gfx_makewaitmenu("Press Power to continue", 10)){
+        if(gfx_defaultWaitMenu("Are you sure you want to format your sd?\nThis will delete everything on your SD card!\nThis action is irreversible!", 10)){
             if (format(res)){
                 sd_unmount();
             }
@@ -113,7 +94,7 @@ void MainMenu_Exit(){
     }
 
     res = menu_make(mainmenu_shutdown, 6, "-- Shutdown Menu --");
-
+    
     switch(res){
         case SHUTDOWN_REBOOT_RCM:
             reboot_rcm();
@@ -130,6 +111,7 @@ void MainMenu_Exit(){
         case SHUTDOWN_AMS:
             launch_payload("/atmosphere/reboot_payload.bin");
     } //todo declock bpmp
+    
 }
 
 func_void_ptr mainmenu_functions[] = {
@@ -152,22 +134,31 @@ void RunMenuOption(int option){
 void te_main(){
     int setter;
 
+    //gfx_printf("Initing controller\n");
+    hidInit();
+
+    //gfx_printf("Getting biskeys\n");
     if (dump_biskeys() == -1){
         gfx_errDisplay("dump_biskey", ERR_BISKEY_DUMP_FAILED, 0);
         //mainmenu_main[1].property |= ISHIDE;
     }
 
+    //gfx_printf("Mounting SD\n");
+    sd_mount();
+
+    //gfx_printf("Loading possible EMU\n");
     if (emummc_load_cfg()){
         mainmenu_main[2].property |= ISHIDE;
     }
 
+    //gfx_printf("Dumping gpt\n");
     dumpGpt();
 
+    //gfx_printf("Disconnecting EMMC\n");
     disconnect_mmc();
 
+    //gfx_printf("Entering main menu\n");
     while (1){
-        //fillmainmenu();
-
         setter = sd_mounted;
 
         if (emu_cfg.enabled){
@@ -180,7 +171,10 @@ void te_main(){
         setter = sd_inited;
         SETBIT(mainmenu_main[5].property, ISHIDE, !setter);
 
+        disableB = true;
         res = menu_make(mainmenu_main, 8, "-- Main Menu --") + 1;
+        disableB = false;
+
         RunMenuOption(res);
     }
 }

@@ -64,13 +64,14 @@ u32 splitargs(char* in) {
             curcount++;
             current = 0;
         }
-        else if (in[i] == '@' || in[i] == '$' || in[i] == '?') {
-            while (in[i] != ',' && in[i] != ' ' && in[i] != ')' && i < len) {
+        else if (in[i] == '@' || in[i] == '$') {
+            while (strrchr(", )", in[i]) == NULL && i < len) {
                 argv[curcount][current++] = in[i++];
             }
             i--;
         }
-        else if ((in[i] >= '0' && in[i] <= '9') || (in[i] >= '<' && in[i] <= '>') || in[i] == '+' || in[i] == '-' || in[i] == '*' || in[i] == '/')
+        //else if ((in[i] >= '0' && in[i] <= '9') || (in[i] >= '<' && in[i] <= '>') || in[i] == '+' || in[i] == '-' || in[i] == '*' || in[i] == '/')
+        else if (strrchr("0123456789<=>+-*/", in[i]) != NULL)
             argv[curcount][current++] = in[i];
         else if (in[i] == '"') {
             i++;
@@ -287,9 +288,6 @@ void runScript(char *path){
     //add builtin vars
     str_int_add("@EMUMMC", emu_cfg.enabled);
     str_int_add("@RESULT", 0);
-    str_int_add("@BTN_POWER", 0);
-    str_int_add("@BTN_VOL+", 0);
-    str_int_add("@BTN_VOL-", 0);
     str_str_add("$CURRENTPATH", currentpath);
 
     //str_int_printall();

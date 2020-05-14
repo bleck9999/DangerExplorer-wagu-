@@ -23,7 +23,8 @@ enum utils_err_codes_te_call {
     ERR_SD_EJECTED,
     ERR_PARSE_FAIL,
     ERR_CANNOT_COPY_FILE_TO_FS_PART,
-    ERR_NO_DESTINATION
+    ERR_NO_DESTINATION,
+    ERR_INI_PARSE_FAIL
 };
 
 extern const char *utils_err_codes_te[];
@@ -58,8 +59,7 @@ extern menu_entry mainmenu_shutdown[];
 enum mainmenu_tools_return {
     TOOLS_DISPLAY_INFO = 1,
     TOOLS_DISPLAY_GPIO,
-    TOOLS_DUMPFIRMWARE,
-    TOOLS_DUMPUSERSAVE
+    TOOLS_DUMPFIRMWARE
 };
 
 extern menu_entry mainmenu_tools[];
@@ -81,11 +81,13 @@ extern menu_entry utils_mmcChoice[];
 enum fs_menu_file_return {
     FILE_COPY = 4,
     FILE_MOVE,
+    FILE_RENAME,
     FILE_DELETE,
     FILE_PAYLOAD,
     FILE_SCRIPT,
     FILE_HEXVIEW,
-    FILE_DUMPBIS
+    FILE_DUMPBIS,
+    FILE_SIGN
 };
 
 extern menu_entry fs_menu_file[];
@@ -93,7 +95,9 @@ extern menu_entry fs_menu_file[];
 enum fs_menu_folder_return {
     DIR_EXITFOLDER = 2,
     DIR_COPYFOLDER,
-    DIR_DELETEFOLDER
+    DIR_DELETEFOLDER,
+    DIR_RENAME,
+    DIR_CREATE
 };
 
 extern menu_entry fs_menu_folder[];

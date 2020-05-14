@@ -8,7 +8,6 @@
 #include "../common/common.h"
 #include "../../libs/fatfs/ff.h"
 #include "../../utils/sprintf.h"
-#include "../../utils/btn.h"
 #include "../../mem/heap.h"
 #include "../../storage/nx_emmc.h"
 #include "../common/types.h"
@@ -46,7 +45,7 @@ int emmcDumpPart(char *path, sdmmc_storage_t *mmcstorage, emmc_part_t *part){
     f_lseek(&fp, 0);
 
     while (totalSectors > 0){
-        num = MIN(totalSectors, 64);
+        num = MIN(totalSectors, 128);
         if (!emummc_storage_read(mmcstorage, lba_curr, num, buf)){
             gfx_errDisplay("dump_emmc_part", ERR_EMMC_READ_FAILED, 3);
             return -1;
@@ -72,8 +71,8 @@ int existsCheck(char *path){
     int res = 0;
 
     if (fsutil_checkfile(path)){
-        gfx_printf("File already exists! Overwrite?\nVol +/- to cancel\n");
-        res = gfx_makewaitmenu("Power to continue", 3);
+        gfx_printf("File already exists! Overwrite?\nBto cancel\n");
+        res = gfx_makewaitmenu("A to continue", 3);
         gfx_printf("\r                 \r");
         return res;
     }

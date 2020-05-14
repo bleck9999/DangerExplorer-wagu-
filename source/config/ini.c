@@ -55,19 +55,16 @@ u32 _find_section_name(char *lbuf, u32 lblen, char schar)
 ini_sec_t *_ini_create_section(link_t *dst, ini_sec_t *csec, char *name, u8 type)
 {
 	if (csec)
-	{
 		list_append(dst, &csec->link);
-		csec = NULL;
-	}
 
-	csec = (ini_sec_t *)malloc(sizeof(ini_sec_t));
+	csec = (ini_sec_t *)calloc(sizeof(ini_sec_t), 1);
 	csec->name = _strdup(name);
 	csec->type = type;
 
 	return csec;
 }
 
-int ini_parse(link_t *dst, char *ini_path, bool is_dir)
+int ini_parse(link_t *dst, const char *ini_path, bool is_dir)
 {
 	u32 lblen;
 	u32 pathlen = strlen(ini_path);
@@ -76,6 +73,7 @@ int ini_parse(link_t *dst, char *ini_path, bool is_dir)
 	char *filelist = NULL;
 	FIL fp;
 	ini_sec_t *csec = NULL;
+	bool firstIniRun = true;
 
 	char *filename = (char *)malloc(256);
 
@@ -119,10 +117,17 @@ int ini_parse(link_t *dst, char *ini_path, bool is_dir)
 
 		do
 		{
+			if (firstIniRun){
+				firstIniRun = false;
+				strcpy(lbuf, "[Unknown]");
+				lblen = 9;
+			}
+			else {
 			// Fetch one line.
 			lbuf[0] = 0;
 			f_gets(lbuf, 512, &fp);
 			lblen = strlen(lbuf);
+			}
 
 			// Remove trailing newline. Depends on 'FF_USE_STRFUNC 2' that removes \r.
 			if (lblen && lbuf[lblen - 1] == '\n')
@@ -154,7 +159,7 @@ int ini_parse(link_t *dst, char *ini_path, bool is_dir)
 			{
 				u32 i = _find_section_name(lbuf, lblen, '=');
 
-				ini_kv_t *kv = (ini_kv_t *)malloc(sizeof(ini_kv_t));
+				ini_kv_t *kv = (ini_kv_t *)calloc(sizeof(ini_kv_t), 1);
 				kv->key = _strdup(&lbuf[0]);
 				kv->val = _strdup(&lbuf[i + 1]);
 				list_append(&csec->kvs, &kv->link);

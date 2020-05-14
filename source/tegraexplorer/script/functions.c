@@ -6,7 +6,7 @@
 #include "../../utils/types.h"
 #include "../../libs/fatfs/ff.h"
 #include "../../utils/sprintf.h"
-#include "../../utils/btn.h"
+#include "../../hid/hid.h"
 #include "../../gfx/gfx.h"
 #include "../../utils/util.h"
 #include "../../storage/emummc.h"
@@ -63,6 +63,9 @@ int parseStringInput(char *in, char **out){
         return 0;
     }
 }
+
+#pragma GCC push_options
+#pragma GCC optimize ("Os")
 
 u32 currentcolor = COLOR_WHITE;
 int part_printf(){
@@ -269,17 +272,21 @@ int part_MountMMC(){
 }
 
 int part_Pause(){
-    int res;
+    Inputs *input = hidWaitMask(KEY_A | KEY_B | KEY_X | KEY_Y | KEY_POW | KEY_VOLP | KEY_VOLM | KEY_LUP | KEY_LDOWN | KEY_LLEFT | KEY_LRIGHT);
 
-    while (btn_read() != 0);
-
-    res = btn_wait();  
-
-    str_int_add("@BTN_POWER", (res & BTN_POWER));
-    str_int_add("@BTN_VOL+", (res & BTN_VOL_UP));
-    str_int_add("@BTN_VOL-", (res & BTN_VOL_DOWN));
+    str_int_add("@BTN_POWER", input->pow);
+    str_int_add("@BTN_VOL+", input->volp);
+    str_int_add("@BTN_VOL-", input->volm);
+    str_int_add("@BTN_A", input->a);
+    str_int_add("@BTN_B", input->b);
+    str_int_add("@BTN_X", input->x);
+    str_int_add("@BTN_Y", input->y);
+    str_int_add("@BTN_UP", input->Lup);
+    str_int_add("@BTN_DOWN", input->Ldown);
+    str_int_add("@BTN_LEFT", input->Lleft);
+    str_int_add("@BTN_RIGHT", input->Lright);
     
-    return res;
+    return input->buttons;
 }
 
 int part_addstrings(){
@@ -455,10 +462,10 @@ int part_setPrintPos(){
     if (parseIntInput(argv[1], &right))
         return -1;
 
-    if (left > 42)
+    if (left > 78)
         return -1;
 
-    if (right > 78)
+    if (right > 42)
         return -1;
 
     gfx_con_setpos(left * 16, right * 16);
@@ -517,7 +524,7 @@ int part_mmc_restorePart(){
     if (currentlyMounted < 0)
         return -1;
 
-    return mmcFlashFile(path, currentlyMounted);   
+    return mmcFlashFile(path, currentlyMounted, false);   
 }
 
 int part_fs_extractBisFile(){
@@ -579,6 +586,8 @@ str_fnc_struct functions[] = {
     {"exit", part_Exit, 0},
     {NULL, NULL, 0}
 };
+
+#pragma GCC pop_options
 
 int run_function(char *func_name, int *out){
     for (u32 i = 0; functions[i].key != NULL; i++){

@@ -4,7 +4,6 @@
 #include "../../utils/types.h"
 #include "../../libs/fatfs/ff.h"
 #include "../../utils/sprintf.h"
-#include "../../utils/btn.h"
 #include "../../gfx/gfx.h"
 #include "../../utils/util.h"
 #include "../../hos/pkg1.h"
@@ -100,7 +99,7 @@ void connect_mmc(short mmctype){
         h_cfg.emummc_force_disable = 0;
         switch (mmctype){
             case SYSMMC:
-                sdmmc_storage_init_mmc(&storage, &sdmmc, SDMMC_4, SDMMC_BUS_WIDTH_8, 4);
+                sdmmc_storage_init_mmc(&storage, &sdmmc, SDMMC_BUS_WIDTH_8, SDHCI_TIMING_MMC_HS400);
                 h_cfg.emummc_force_disable = 1;
                 currentlyMounted = SYSMMC;
                 break;
@@ -218,6 +217,7 @@ int dump_biskeys(){
 
     //sdmmc_storage_set_mmc_partition(&storage, 0);
     //nx_emmc_gpt_parse(&sys_gpt, &storage);
+    
 
     se_aes_key_set(8, bis_key[2] + 0x00, 0x10);
     se_aes_key_set(9, bis_key[2] + 0x10, 0x10);
