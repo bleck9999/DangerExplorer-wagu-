@@ -36,9 +36,7 @@ void MainMenu_SDCard(){
 }
 
 void MainMenu_EMMC(){
-    if (gfx_defaultWaitMenu("You're about to enter EMMC\nModifying anything here can result in a BRICK!\n\nPlease only continue if you know what you're doing", 4)){
-       makeMmcMenu(SYSMMC);
-    }
+    makeMmcMenu(SYSMMC);
 }
 
 void MainMenu_EMUMMC(){
@@ -69,10 +67,8 @@ void MainMenu_SDFormat(){
     res = menu_make(mainmenu_format, 3, "-- Format Menu --");
 
     if (res > 0){
-        if(gfx_defaultWaitMenu("Are you sure you want to format your sd?\nThis will delete everything on your SD card!\nThis action is irreversible!", 10)){
-            if (format(res)){
-                sd_unmount();
-            }
+        if (format(res)){
+            sd_unmount();
         }
     }
 }
