@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # TegraExplorer
 
 [![TegraExplorer builder](https://github.com/suchmememanyskill/TegraExplorer/workflows/TegraExplorer%20builder/badge.svg)](https://github.com/suchmememanyskill/TegraExplorer/actions)
@@ -65,3 +66,8 @@ Other awesome people:
 ## Screenshots
 
 ![Preview](/preview.png)
+=======
+this is not tegraexplorer, this is a build but all of the `gfx_defaultWaitMenu`s have been removed with the help of ctrl+f
+
+if you were looking for tegraexplorer, it's over [here](https://github.com/suchmememanyskill/TegraExplorer) 
+>>>>>>> 219b0a6... wii U
