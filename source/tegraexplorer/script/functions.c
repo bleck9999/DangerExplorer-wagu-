@@ -102,20 +102,6 @@ int part_print_int(){
 }
 
 int part_Wait(){
-    int arg;
-    u32 begintime;
-    SWAPCOLOR(currentcolor);
-
-    if (parseIntInput(argv[0], &arg))
-        return -1;
-
-    begintime = get_tmr_s();
-
-    while (begintime + arg > get_tmr_s()){
-        gfx_printf("\r<Wait %d seconds> ", (begintime + arg) - get_tmr_s());
-    }
-
-    gfx_printf("\r                 \r");
     return 0;
 }
 
