@@ -23,7 +23,11 @@ void gfx_clearscreen(){
     gfx_boxGrey(0, 703, 1279, 719, 0xFF);
     gfx_boxGrey(0, 0, 1279, 15, 0xFF);
     gfx_con_setpos(0, 0);
+<<<<<<< HEAD
     gfx_printf("Tegraexplorer v2.0.4 | Battery: %3d%%\n", battery >> 8);
+=======
+    gfx_printf("DangerExplorer v100.0.0 | Battery: %3d%%\n", battery >> 8);
+>>>>>>> 97510d6... Bump version
 
     RESETCOLOR;
 }
