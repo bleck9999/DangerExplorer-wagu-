@@ -70,24 +70,7 @@ u32 gfx_errDisplay(const char *src_func, int err, int loc){
 }
 
 int gfx_makewaitmenu(const char *hiddenmessage, int timer){
-    u32 start = get_tmr_s();
-    Inputs *input = NULL;
-
-    while(1){
-        input = hidRead();
-
-        if (input->buttons & (KEY_VOLM | KEY_VOLP | KEY_B))
-            return 0;
-
-        if (start + timer > get_tmr_s())
-            gfx_printf("\r<Wait %d seconds> ", timer + start - get_tmr_s());
-
-        else if (input->a)
-            return 1;
-
-        else 
-            gfx_printf("\r%s", hiddenmessage);
-    }
+    return 0;
 }
 
 void gfx_printlength(int size, const char *toprint){
