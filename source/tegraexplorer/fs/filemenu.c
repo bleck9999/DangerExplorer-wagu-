@@ -24,16 +24,9 @@ extern u8 clipboardhelper;
 extern int launch_payload(char *path);
 
 int delfile(const char *path, const char *filename){
-    gfx_clearscreen();
-    SWAPCOLOR(COLOR_ORANGE);
-    gfx_printf("Are you sure you want to delete:\n%s\n\nPress B to cancel\n", filename);
-    if (gfx_makewaitmenu("Press A to delete", 2)){
-        f_unlink(path);
-        fsreader_readfolder(currentpath);
-        return 0;
-    }
-    else
-        return -1;
+    f_unlink(path);
+    fsreader_readfolder(currentpath);
+    return 0;
 }
 
 void viewbytes(char *path){
