@@ -74,14 +74,14 @@ int part_printf(){
         if (argv[i][0] == '@'){
             int toprintint;
             if (parseIntInput(argv[i], &toprintint))
-                return -1;
+                return INFUNC_FAIL;
 
             gfx_printf("%d", toprintint);
         }
         else {
             char *toprintstring;
             if (parseStringInput(argv[i], &toprintstring))
-                return -1;
+                return INFUNC_FAIL;
 
             gfx_printf(toprintstring);
         }
@@ -94,7 +94,7 @@ int part_printf(){
 int part_print_int(){
     int toprint;
     if (parseIntInput(argv[0], &toprint))
-        return -1;
+        return INFUNC_FAIL;
     
     SWAPCOLOR(currentcolor);
     gfx_printf("%s: %d\n", argv[0], toprint);
@@ -108,9 +108,9 @@ int part_Wait(){
 int part_Check(){
     int left, right;
     if (parseIntInput(argv[0], &left))
-        return -1;
+        return INFUNC_FAIL;
     if (parseIntInput(argv[2], &right))
-        return -1;
+        return INFUNC_FAIL;
 
     if (!strcmp(argv[1], "=="))
         return (left == right);
@@ -125,13 +125,13 @@ int part_Check(){
     else if (!strcmp(argv[1], "<"))
         return (left < right);
     else
-        return -1;
+        return INFUNC_FAIL;
 }
 
 int part_if(){
     int condition;
     if (parseIntInput(argv[0], &condition))
-        return -1;
+        return INFUNC_FAIL;
 
     getfollowingchar('{');
 
@@ -153,7 +153,7 @@ int part_if(){
 int part_if_args(){
     int condition;
     if ((condition = part_Check()) < 0)
-        return -1;
+        return INFUNC_FAIL;
 
     getfollowingchar('{');
 
@@ -166,9 +166,9 @@ int part_if_args(){
 int part_Math(){
     int left, right;
     if (parseIntInput(argv[0], &left))
-        return -1;
+        return INFUNC_FAIL;
     if (parseIntInput(argv[2], &right))
-        return -1;
+        return INFUNC_FAIL;
     
     switch (argv[1][0]){
         case '+':
@@ -180,7 +180,7 @@ int part_Math(){
         case '/':
             return left / right;
     }
-    return -1;
+    return INFUNC_FAIL;
 }
 
 int part_SetInt(){
@@ -192,9 +192,9 @@ int part_SetInt(){
 int part_SetString(){
     char *arg0;
     if (parseStringInput(argv[0], &arg0))
-        return -1;
+        return INFUNC_FAIL;
     if (argv[1][0] != '$')
-        return -1;
+        return INFUNC_FAIL;
 
     str_str_add(argv[1], arg0);
     return 0;
@@ -204,11 +204,11 @@ int part_SetStringIndex(){
     int index;
     char *out;
     if (parseIntInput(argv[0], &index))
-        return -1;
+        return INFUNC_FAIL;
     if (argv[1][0] != '$')
-        return -1;
+        return INFUNC_FAIL;
     if (str_str_index(index, &out))
-        return -1;
+        return INFUNC_FAIL;
 
     str_str_add(argv[1], out);
     return 0;
@@ -217,7 +217,10 @@ int part_SetStringIndex(){
 int part_goto(){
     int target = 0;
     if (parseIntInput(argv[0], &target))
-        return -1;
+        return INFUNC_FAIL;
+
+    str_int_add("@RETURN", (int)f_tell(&scriptin));
+
     f_lseek(&scriptin, target);
     return 0;
 }
@@ -225,14 +228,14 @@ int part_goto(){
 int part_invert(){
     int arg;
     if (parseIntInput(argv[0], &arg))
-        return -1;
+        return INFUNC_FAIL;
     return (arg) ? 0 : 1;
 }
 
 int part_fs_exists(){
     char *path;
     if (parseStringInput(argv[0], &path))
-        return -1;
+        return INFUNC_FAIL;
     
     return fsutil_checkfile(path);
 }
@@ -246,7 +249,7 @@ int part_ConnectMMC(){
     else if (!strcmp(arg, "EMUMMC"))
         connect_mmc(EMUMMC);
     else
-        return -1;
+        return INFUNC_FAIL;
 
     return 0;
 }
@@ -271,6 +274,7 @@ int part_Pause(){
     str_int_add("@BTN_DOWN", input->Ldown);
     str_int_add("@BTN_LEFT", input->Lleft);
     str_int_add("@BTN_RIGHT", input->Lright);
+    str_int_add("@JOYCONN", hidConnected());
     
     return input->buttons;
 }
@@ -278,11 +282,11 @@ int part_Pause(){
 int part_addstrings(){
     char *combined, *left, *middle;
     if (parseStringInput(argv[0], &left))
-        return -1;
+        return INFUNC_FAIL;
     if (parseStringInput(argv[1], &middle))
-        return -1;
+        return INFUNC_FAIL;
     if (argv[2][0] != '$')
-        return -1;
+        return INFUNC_FAIL;
     
     combined = calloc(strlen(left) + strlen(middle) + 1, sizeof(char));
     sprintf(combined, "%s%s", left, middle);
@@ -295,7 +299,7 @@ int part_addstrings(){
 int part_setColor(){
     char *arg;
     if (parseStringInput(argv[0], &arg))
-        return -1;
+        return INFUNC_FAIL;
 
     if (!strcmp(arg, "RED"))
         currentcolor = COLOR_RED;
@@ -312,7 +316,7 @@ int part_setColor(){
     else if (!strcmp(arg, "WHITE"))
         currentcolor = COLOR_WHITE;
     else
-        return -1;
+        return INFUNC_FAIL;
 
     return 0;
 }
@@ -326,9 +330,9 @@ int part_fs_Move(){
     char *left, *right;
 
     if (parseStringInput(argv[0], &left))
-        return -1;
+        return INFUNC_FAIL;
     if (parseStringInput(argv[1], &right))
-        return -1;
+        return INFUNC_FAIL;
 
     int res;
     res = f_rename(left, right);
@@ -342,7 +346,7 @@ int part_fs_Delete(){
     char *arg;
 
     if (parseStringInput(argv[0], &arg))
-        return -1;
+        return INFUNC_FAIL;
 
     int res;
     res = f_unlink(arg);
@@ -356,7 +360,7 @@ int part_fs_DeleteRecursive(){
     char *arg;
 
     if (parseStringInput(argv[0], &arg))
-        return -1;
+        return INFUNC_FAIL;
 
     return fsact_del_recursive(arg);
 }
@@ -365,9 +369,9 @@ int part_fs_Copy(){
     char *left, *right;
 
     if (parseStringInput(argv[0], &left))
-        return -1;
+        return INFUNC_FAIL;
     if (parseStringInput(argv[1], &right))
-        return -1;
+        return INFUNC_FAIL;
 
     return fsact_copy(left, right, COPY_MODE_PRINT);
 }
@@ -376,9 +380,9 @@ int part_fs_CopyRecursive(){
     char *left, *right;
 
     if (parseStringInput(argv[0], &left))
-        return -1;
+        return INFUNC_FAIL;
     if (parseStringInput(argv[1], &right))
-        return -1;
+        return INFUNC_FAIL;
 
     return fsact_copy_recursive(left, right);
 }
@@ -387,7 +391,7 @@ int part_fs_MakeDir(){
     char *arg;
 
     if (parseStringInput(argv[0], &arg))
-        return -1;
+        return INFUNC_FAIL;
 
     int res;
     res = f_mkdir(arg);
@@ -404,10 +408,10 @@ int part_fs_OpenDir(){
     char *path;
 
     if (parseStringInput(argv[0], &path))
-        return -1;
+        return INFUNC_FAIL;
 
     if (f_opendir(&dir, path))
-        return -1;
+        return INFUNC_FAIL;
     
     isdirvalid = true;
     str_int_add("@ISDIRVALID", isdirvalid);
@@ -426,7 +430,7 @@ int part_fs_CloseDir(){
 
 int part_fs_ReadDir(){
     if (!isdirvalid)
-        return -1;
+        return INFUNC_FAIL;
 
     if (!f_readdir(&dir, &fno) && fno.fname[0]){
         str_str_add("$FILENAME", fno.fname);
@@ -443,16 +447,16 @@ int part_setPrintPos(){
     int left, right;
 
     if (parseIntInput(argv[0], &left))
-        return -1;
+        return INFUNC_FAIL;
 
     if (parseIntInput(argv[1], &right))
-        return -1;
+        return INFUNC_FAIL;
 
     if (left > 78)
-        return -1;
+        return INFUNC_FAIL;
 
     if (right > 42)
-        return -1;
+        return INFUNC_FAIL;
 
     gfx_con_setpos(left * 16, right * 16);
     return 0;
@@ -462,9 +466,9 @@ int part_stringcompare(){
     char *left, *right;
 
     if (parseStringInput(argv[0], &left))
-        return -1;
+        return INFUNC_FAIL;
     if (parseStringInput(argv[1], &right))
-        return -1;
+        return INFUNC_FAIL;
 
     return (strcmp(left, right)) ? 0 : 1;
 }
@@ -472,11 +476,11 @@ int part_stringcompare(){
 int part_fs_combinePath(){
     char *combined, *left, *middle;
     if (parseStringInput(argv[0], &left))
-        return -1;
+        return INFUNC_FAIL;
     if (parseStringInput(argv[1], &middle))
-        return -1;
+        return INFUNC_FAIL;
     if (argv[2][0] != '$')
-        return -1;
+        return INFUNC_FAIL;
     
     combined = fsutil_getnextloc(left, middle);
     
@@ -489,9 +493,9 @@ int part_mmc_dumpPart(){
     char *left, *right;
 
     if (parseStringInput(argv[0], &left))
-        return -1;
+        return INFUNC_FAIL;
     if (parseStringInput(argv[1], &right))
-        return -1;
+        return INFUNC_FAIL;
 
     if (!strcmp(left, "BOOT")){
         return emmcDumpBoot(right);
@@ -505,10 +509,10 @@ int part_mmc_restorePart(){
     char *path;
 
     if (parseStringInput(argv[0], &path))
-        return -1;
+        return INFUNC_FAIL;
 
     if (currentlyMounted < 0)
-        return -1;
+        return INFUNC_FAIL;
 
     return mmcFlashFile(path, currentlyMounted, false);   
 }
@@ -517,9 +521,9 @@ int part_fs_extractBisFile(){
     char *path, *outfolder;
 
     if (parseStringInput(argv[0], &path))
-        return -1;
+        return INFUNC_FAIL;
     if (parseStringInput(argv[1], &outfolder))
-        return -1;
+        return INFUNC_FAIL;
 
     return extract_bis_file(path, outfolder);
 }
@@ -531,6 +535,60 @@ int part_clearscreen(){
 
 int part_getPos(){
     return (int)f_tell(&scriptin);
+}
+
+int part_subString(){
+    char *str, *sub;
+    int start, size;
+
+    if (parseStringInput(argv[0], &str))
+        return INFUNC_FAIL;
+    if (parseIntInput(argv[1], &start))
+        return INFUNC_FAIL;
+    if (parseIntInput(argv[2], &size))
+        return INFUNC_FAIL;
+    if (argv[3][0] != '$')
+        return INFUNC_FAIL;
+
+    if (start >= strlen(str))
+        return INFUNC_FAIL;
+
+    sub = utils_copyStringSize(str + start, size);
+    str_str_add(argv[3], sub);
+    free(sub);
+    return 0;
+}
+
+int part_inputString(){
+    char *start, *out;
+    int len;
+
+    if (parseStringInput(argv[0], &start))
+        return INFUNC_FAIL;
+    if (parseIntInput(argv[1], &len))
+        return INFUNC_FAIL;
+    if (argv[2][0] != '$')
+        return INFUNC_FAIL;
+
+    if (len > 39)
+        return INFUNC_FAIL;
+
+    out = utils_InputText(start, len);
+    if (out == NULL)
+        return 1;
+
+    str_str_add(argv[2], out);
+    free(out);
+    return 0;
+}
+
+int part_strLen(){
+    char *in;
+
+    if (parseStringInput(argv[0], &in))
+        return INFUNC_FAIL;
+
+    return strlen(in);
 }
 
 str_fnc_struct functions[] = {
@@ -549,6 +607,9 @@ str_fnc_struct functions[] = {
     {"setColor", part_setColor, 1},
     {"combineStrings", part_addstrings, 3},
     {"compareStrings", part_stringcompare, 2},
+    {"subString", part_subString, 4},
+    {"inputString", part_inputString, 3},
+    {"stringLength", part_strLen, 1},
     {"invert", part_invert, 1},
     {"fs_exists", part_fs_exists, 1},
     {"fs_move", part_fs_Move, 2},
@@ -582,8 +643,8 @@ int run_function(char *func_name, int *out){
                 continue;
 
             *out = functions[i].value();
-            return (*out < 0) ? -1 : 0;
+            return (*out == INFUNC_FAIL) ? -1 : 0;
         }
     }
-    return -1;
+    return -2;
 }

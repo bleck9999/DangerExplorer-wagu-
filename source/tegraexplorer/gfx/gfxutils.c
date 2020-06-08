@@ -18,12 +18,12 @@ void gfx_clearscreen(){
 
     gfx_clear_grey(0x1B);
     SWAPCOLOR(COLOR_DEFAULT);
-    SWAPBGCOLOR(COLOR_WHITE);
+    SWAPBGCOLOR(COLOR_YELLOW);
 
     gfx_boxGrey(0, 703, 1279, 719, 0xFF);
     gfx_boxGrey(0, 0, 1279, 15, 0xFF);
     gfx_con_setpos(0, 0);
-    gfx_printf("DangerExplorer v100.0.0 | Battery: %3d%%\n", battery >> 8);
+    gfx_printf("Tegraexplorer v2.0.3 | Battery: %3d%%\n", battery >> 8);
 
     RESETCOLOR;
 }
@@ -52,7 +52,7 @@ u32 gfx_errDisplay(const char *src_func, int err, int loc){
     
     if (err < 15)
         gfx_printf("Desc: %s\n", utils_err_codes[err]);
-    else if (err >= ERR_SAME_LOC && err <= ERR_INI_PARSE_FAIL)
+    else if (err >= ERR_SAME_LOC && err <= ERR_IN_FUNC)
         gfx_printf("Desc: %s\n", utils_err_codes_te[err - 50]);
 
     if (loc)
@@ -158,9 +158,5 @@ void gfx_drawScrollBar(int minView, int maxView, int count){
 }
 
 int gfx_defaultWaitMenu(const char *message, int time){
-    gfx_clearscreen();
-    SWAPCOLOR(COLOR_ORANGE);
-    gfx_printf("\n%s\n\nPress B to return\n", message);
-    SWAPCOLOR(COLOR_RED);
-    return gfx_makewaitmenu("Press A to continue", time);
+    return 0;
 }
