@@ -102,23 +102,6 @@ int part_print_int(){
 }
 
 int part_Wait(){
-<<<<<<< HEAD
-    int arg;
-    u32 begintime;
-    SWAPCOLOR(currentcolor);
-
-    if (parseIntInput(argv[0], &arg))
-        return INFUNC_FAIL;
-
-    begintime = get_tmr_s();
-
-    while (begintime + arg > get_tmr_s()){
-        gfx_printf("\r<Wait %d seconds> ", (begintime + arg) - get_tmr_s());
-    }
-
-    gfx_printf("\r                 \r");
-=======
->>>>>>> 384a0bf... no wait allowed
     return 0;
 }
 
@@ -663,10 +646,4 @@ int run_function(char *func_name, int *out){
             return (*out == INFUNC_FAIL) ? -1 : 0;
         }
     }
-<<<<<<< HEAD
     return -2;
-}
-=======
-    return -1;
-}
->>>>>>> 384a0bf... no wait allowed
