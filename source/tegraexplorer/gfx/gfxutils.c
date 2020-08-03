@@ -18,13 +18,12 @@ void gfx_clearscreen(){
 
     gfx_clear_grey(0x1B);
     SWAPCOLOR(COLOR_DEFAULT);
-    SWAPBGCOLOR(COLOR_YELLOW);
+    SWAPBGCOLOR(COLOR_WHITE);
 
     gfx_boxGrey(0, 703, 1279, 719, 0xFF);
     gfx_boxGrey(0, 0, 1279, 15, 0xFF);
     gfx_con_setpos(0, 0);
-    gfx_printf("Tegraexplorer v2.0.3 | Battery: %3d%%\n", battery >> 8);
-
+    gfx_printf("DangerExplorer v102.0.4 | Battery: %3d%%\n", battery >> 8);
     RESETCOLOR;
 }
 

@@ -647,4 +647,7 @@ int run_function(char *func_name, int *out){
         }
     }
     return -2;
+<<<<<<< HEAD
 }
+=======
+>>>>>>> suchmememanyskill-master
