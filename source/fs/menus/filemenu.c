@@ -23,9 +23,9 @@ MenuEntry_t FileMenuEntries[] = {
     {.optionUnion = COLORTORGB(COLOR_VIOLET) | SKIPBIT}, // For the file Attribs
     {.optionUnion = HIDEBIT},
     {.optionUnion = COLORTORGB(COLOR_WHITE), .name = "<- Back"},
-    {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "\nCopy to clipboard"},
+    {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "Copy to clipboard"},
     {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "Move to clipboard"},
-    {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "Rename file\n"},
+    {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "Rename file"},
     {.optionUnion = COLORTORGB(COLOR_RED), .name = "Delete file"},
     {.optionUnion = COLORTORGB(COLOR_GREEN), .name = "View hex"},
     {.optionUnion = COLORTORGB(COLOR_ORANGE), .name = "Launch Payload"},

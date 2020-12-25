@@ -25,7 +25,8 @@ MenuEntry_t YesNoEntries[] = {
 };
 
 int MakeYesNoHorzMenu(int spacesBetween, u32 bg){
-    return MakeHorizontalMenu(YesNoEntries, ARR_LEN(YesNoEntries), spacesBetween, bg, 0);
+    return 1;
+    //return MakeHorizontalMenu(YesNoEntries, ARR_LEN(YesNoEntries), spacesBetween, bg);
 }
 
 int MakeHorizontalMenu(MenuEntry_t *entries, int len, int spacesBetween, u32 bg, int startPos){
