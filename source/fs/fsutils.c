@@ -16,7 +16,7 @@ char *CombinePaths(const char *current, const char *add){
 
     return ret;
 }
-
+/*
 char *EscapeFolder(const char *current){
     char *ret;
     char *temp;
@@ -43,7 +43,7 @@ char *GetFileAttribs(FSEntry_t entry){
     MaskIn(ret, entry.optionUnion, '-');
     return ret;
 }
-
+*/
 bool FileExists(char* path){
     FRESULT fr;
     FILINFO fno;

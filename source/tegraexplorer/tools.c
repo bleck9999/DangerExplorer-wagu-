@@ -17,7 +17,7 @@
 #include "../fs/readers/folderReader.h"
 #include <string.h>
 #include "../fs/fscopy.h"
-
+/*
 void TestControllers(){
     gfx_clearscreen();
     gfx_printf("Controller test screen. Return using b\n\n");
@@ -35,13 +35,13 @@ void TestControllers(){
 		gfx_printf("\r");
 	}
 }
-
+*/
 extern int launch_payload(char *path);
 
 void RebootToPayload(){
     launch_payload("atmosphere/reboot_payload.bin");
 }
-
+/*
 void DumpSysFw(){
 	char sysPath[25 + 36 + 3 + 1]; // 24 for "bis:/Contents/registered", 36 for ncaName.nca, 3 for /00, and 1 to make sure :)
 	char *baseSdPath;
@@ -137,4 +137,4 @@ void DumpSysFw(){
 	gfx_printf("\n\nDone! Time taken: %ds\nPress any key to exit", get_tmr_s() - timer);
 	free(baseSdPath);
 	hidWait();
-}
+}*/

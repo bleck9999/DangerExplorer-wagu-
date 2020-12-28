@@ -15,7 +15,7 @@
 #include "../../script/parser.h"
 #include "../../script/variables.h"
 #include <storage/nx_sd.h>
-
+/*
 MenuEntry_t FileMenuEntries[] = {
     // Still have to think up the options
     {.optionUnion = COLORTORGB(COLOR_WHITE) | SKIPBIT, .name = "-- File menu --"},
@@ -69,7 +69,7 @@ void DeleteFile(char *path, FSEntry_t entry){
         DrawError(newErrCode(res));
     free(thing);
 }
-
+*/
 void RunScript(char *path, FSEntry_t entry){
     char *thing = CombinePaths(path, entry.name);
     u32 size;
@@ -87,10 +87,10 @@ void RunScript(char *path, FSEntry_t entry){
 
     freeVariableVector(&ctx.varDict);
     lexarVectorClear(&ctx.script);
-    gfx_printf("\nend of script");
+    //gfx_printf("\nend of script");
     hidWait();
 }
-
+/*
 menuPaths FileMenuPaths[] = {
     CopyClipboard,
     MoveClipboard,
@@ -122,4 +122,4 @@ void FileMenu(char *path, FSEntry_t entry){
         return;
     
     FileMenuPaths[res - 5](path, entry);
-} 
+} */

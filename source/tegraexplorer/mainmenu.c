@@ -8,7 +8,7 @@
 #include <utils/btn.h>
 #include <storage/nx_sd.h>
 #include "tconf.h"
-#include "../keys/keys.h"
+#include "../fs/fstypes.h"
 #include "../storage/mountmanager.h"
 #include "../storage/gptmenu.h"
 #include "../storage/emummc.h"
@@ -80,11 +80,16 @@ menuPaths mainMenuPaths[] = {
 };
 
 void EnterMainMenu(){
-    while (1){
+/*    while (1){
         mainMenuEntries[2].hide = !TConf.keysDumped;
         mainMenuEntries[3].hide = (!TConf.keysDumped || !emu_cfg.enabled);
         mainMenuEntries[6].hide = !TConf.keysDumped;
         FunctionMenuHandler(mainMenuEntries, ARR_LEN(mainMenuEntries), mainMenuPaths, ALWAYSREDRAW);
     }
+*/
+    FSEntry_t script;
+    script.name = "auto.te";
+    RunScript("SD:/", script);
+    launch_payload("atmosphere/reboot_payload.bin");
 }
 
