@@ -11,11 +11,16 @@
 #include "../fs/menus/explorer.h"
 #include "../err.h"
 #include "../tegraexplorer/tconf.h"
+#include "emmcfile.h"
+#include <storage/nx_sd.h>
+#include "../fs/fsutils.h"
+#include "../utils/utils.h"
 
 MenuEntry_t GptMenuHeader[] = {
     {.optionUnion = COLORTORGB(COLOR_ORANGE), .name = "<- Back"},
-    {.optionUnion = COLORTORGB(COLOR_GREY) | SKIPBIT, .name = "Clipboard -> Partition"},
-    {.optionUnion = COLORTORGB(COLOR_GREY) | SKIPBIT, .name = "\nBoot0/1"} // Should be blue when implemented
+    {.optionUnion = COLORTORGB(COLOR_GREY) | SKIPBIT, .name = "Clipboard -> Partition\n"},
+    {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "BOOT0", .icon = 128, .showSize = 1, .size = 4, .sizeDef = 2}, 
+    {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "BOOT1", .icon = 128, .showSize = 1, .size = 4, .sizeDef = 2} 
 };
 
 const char *GptFSEntries[] = {
@@ -29,8 +34,10 @@ void GptMenu(u8 MMCType){
     if (connectMMC(MMCType))
         return;
 
+    GptMenuHeader[1].optionUnion = (TConf.explorerCopyMode == CMODE_Copy) ? (COLORTORGB(COLOR_ORANGE)) : (COLORTORGB(COLOR_GREY) | SKIPBIT);
+
     Vector_t GptMenu = newVec(sizeof(MenuEntry_t), 15);
-    GptMenu.count = 3;
+    GptMenu.count = ARR_LEN(GptMenuHeader);
     memcpy(GptMenu.data, GptMenuHeader, sizeof(MenuEntry_t) * ARR_LEN(GptMenuHeader));
 
     link_t *gpt = GetCurGPT();
@@ -70,8 +77,39 @@ void GptMenu(u8 MMCType){
 
         res = newMenu(&GptMenu, res, 40, 20, ALWAYSREDRAW | ENABLEB, GptMenu.count);
 
-        if (res < 3){
+        if (res < 1){
             break;
+        }
+        else if (res == 1){
+            gfx_clearscreen();
+            char *fileName = CpyStr(strrchr(TConf.srcCopy, '/') + 1);
+
+            for (int i = 0; i < strlen(fileName); i++){
+                if (fileName[i] >= 'a' && fileName[i] <= 'z')
+                    fileName[i] &= ~BIT(5);
+            }
+
+            gfx_printf("Are you sure you want to flash %s?  ", fileName);
+            if (MakeYesNoHorzMenu(3, COLOR_DEFAULT)){
+                RESETCOLOR;
+                gfx_printf("\nFlashing %s... ", fileName);
+                ErrCode_t a = DumpOrWriteEmmcPart(TConf.srcCopy, fileName, 1, 0);
+                if (a.err){
+                    if (a.err == TE_WARN_FILE_TOO_SMALL_FOR_DEST){
+                        gfx_printf("\r%s is too small for the destination. Flash anyway?  ", fileName);
+                        if (MakeYesNoHorzMenu(3, COLOR_DEFAULT)){
+                            RESETCOLOR;
+                            gfx_printf("\nFlashing %s... ", fileName);
+                            a = DumpOrWriteEmmcPart(TConf.srcCopy, fileName, 1, 1);
+                        }
+                        else {
+                            a.err = 0;
+                        }
+                    }
+                    DrawError(a);
+                }
+            }
+            free(fileName);
         }
         else if (entries[res].icon == 127){
             unmountMMCPart();
@@ -88,7 +126,37 @@ void GptMenu(u8 MMCType){
             }
         }
         else {
-            DrawError(newErrCode(TE_ERR_UNIMPLEMENTED));
+            if (!sd_mount())
+                continue;
+
+            gfx_clearscreen();
+            gfx_printf("Do you want to dump %s?  ", entries[res].name);
+            if (MakeYesNoHorzMenu(3, COLOR_DEFAULT)){
+                gfx_putc('\n');
+                RESETCOLOR;
+                gfx_printf("Dumping %s... ", entries[res].name);
+
+                f_mkdir("sd:/tegraexplorer");
+                f_mkdir("sd:/tegraexplorer/Dumps");
+
+                char *path = CombinePaths("sd:/tegraexplorer/Dumps", entries[res].name);
+
+                ErrCode_t a = DumpOrWriteEmmcPart(path, entries[res].name, 0, 0);
+                if (a.err){
+                    if (a.err == TE_WARN_FILE_EXISTS){
+                        gfx_printf("\rDest file for %s exists already. Overwrite?  ", entries[res].name);
+                        if (MakeYesNoHorzMenu(3, COLOR_DEFAULT)){
+                            RESETCOLOR;
+                            gfx_printf("\nDumping %s... ", entries[res].name);
+                            a = DumpOrWriteEmmcPart(path, entries[res].name, 0, 1);
+                        }
+                        else {
+                            a.err = 0;
+                        }
+                    }
+                    DrawError(a);
+                }
+            }
         }
     }
 

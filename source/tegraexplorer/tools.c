@@ -19,30 +19,6 @@
 #include "../fs/fscopy.h"
 #include "../utils/utils.h"
 
-void TestControllers(){
-    gfx_clearscreen();
-    gfx_printf("Controller test screen. Return using b\n\n");
-    while (1){
-		Input_t *controller = hidRead();
-
-        if (controller->b)
-            return;
-
-		u32 buttons = controller->buttons;
-		for (int i = 0; i < 31; i++){
-			gfx_printf("%d", buttons & 1);
-			buttons >>= 1;
-		}
-		gfx_printf("\r");
-	}
-}
-
-extern int launch_payload(char *path);
-
-void RebootToPayload(){
-    launch_payload("atmosphere/reboot_payload.bin");
-}
-
 void DumpSysFw(){
 	char sysPath[25 + 36 + 3 + 1]; // 24 for "bis:/Contents/registered", 36 for ncaName.nca, 3 for /00, and 1 to make sure :)
 	char *baseSdPath;
@@ -82,7 +58,8 @@ void DumpSysFw(){
 			return;
 		}
 		RESETCOLOR;
-		gfx_printf("\nReminder! delete the folder. i can't delete recursively yet");
+		gfx_printf("\nDeleting... ");
+		FolderDelete(baseSdPath);
 		gfx_putc('\n');
 	}
 
@@ -160,7 +137,7 @@ void FormatSD(){
 		return;
 
 	gfx_printf("\nDo you want to partition for an emummc?\n");
-	res = MakeHorizontalMenu(FatAndEmu, ARR_LEN(FatAndEmu), 3, COLOR_DEFAULT);
+	res = MakeHorizontalMenu(FatAndEmu, ARR_LEN(FatAndEmu), 3, COLOR_DEFAULT, 0);
 	
 	if (!res)
 		return;

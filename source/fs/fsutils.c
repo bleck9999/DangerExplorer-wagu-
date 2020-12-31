@@ -32,10 +32,13 @@ char *EscapeFolder(const char *current){
     return ret;
 }
 
-u64 GetFileSize(char *path){
+FSEntry_t GetFileInfo(const char *path){
     FILINFO fno;
     f_stat(path, &fno);
-    return fno.fsize;
+    FSEntry_t entry = {.optionUnion = fno.fattrib, .name = strrchr(path, '/') + 1};
+    if (!(*entry.name))
+        entry.name = "Root";
+    return entry;
 }
 
 char *GetFileAttribs(FSEntry_t entry){
@@ -44,7 +47,7 @@ char *GetFileAttribs(FSEntry_t entry){
     return ret;
 }
 
-bool FileExists(char* path){
+bool FileExists(const char* path){
     FRESULT fr;
     FILINFO fno;
 

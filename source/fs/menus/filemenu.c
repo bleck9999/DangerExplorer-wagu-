@@ -17,7 +17,6 @@
 #include <storage/nx_sd.h>
 
 MenuEntry_t FileMenuEntries[] = {
-    // Still have to think up the options
     {.optionUnion = COLORTORGB(COLOR_WHITE) | SKIPBIT, .name = "-- File menu --"},
     {.optionUnion = COLORTORGB(COLOR_GREEN) | SKIPBIT}, // For the file name and size
     {.optionUnion = COLORTORGB(COLOR_VIOLET) | SKIPBIT}, // For the file Attribs
@@ -91,12 +90,81 @@ void RunScript(char *path, FSEntry_t entry){
     hidWait();
 }
 
-menuPaths FileMenuPaths[] = {
+void RenameFile(char *path, FSEntry_t entry){
+    gfx_clearscreen();
+    char *renameTo = ShowKeyboard(entry.name, false);
+    if (renameTo == NULL || !(*renameTo)) // smol memory leak but eh
+        return;
+    
+    char *src = CombinePaths(path, entry.name);
+    char *dst = CombinePaths(path, renameTo);
+
+    int res = f_rename(src, dst);
+    if (res){
+        DrawError(newErrCode(res));
+    }
+
+    free(src);
+    free(dst);
+    free(renameTo);
+}
+
+// This is from the original TE and it's bad but uhh i'm too lazy to fix it
+void HexView(char *path, FSEntry_t entry){
+    char *filePath = CombinePaths(path, entry.name);
+
+    FIL in;
+    u8 *print;
+    u32 size;
+    QWORD offset = 0;
+    int res;
+    Input_t *input = hidRead();
+
+    while (input->buttons & (BtnPow | JoyB))
+        hidRead();
+
+    gfx_clearscreen();
+    print = malloc(2048);
+
+    if ((res = f_open(&in, filePath, FA_READ | FA_OPEN_EXISTING))){
+        DrawError(newErrCode(res));
+        return;
+    }
+
+    while (1){
+        f_lseek(&in, offset * 32);
+
+        if ((res = f_read(&in, print, 2048, &size))){
+            DrawError(newErrCode(res));
+            return;
+        }
+
+        gfx_con_setpos(0, 31);
+        gfx_hexdump(offset * 32, print, size);
+
+        input = hidRead();
+
+        if (!(input->buttons))
+            input = hidWait();
+
+        if (input->down && 2048 == size)
+            offset += 2;
+        if (input->up && offset > 0)
+            offset -= 2;
+        if (input->buttons & (BtnPow | JoyB))
+            break;
+    }
+    f_close(&in);
+    free(print);
+    free(filePath);
+}
+
+fileMenuPath FileMenuPaths[] = {
     CopyClipboard,
     MoveClipboard,
-    UnimplementedException,
+    RenameFile,
     DeleteFile,
-    UnimplementedException,
+    HexView,
     LaunchPayload,
     RunScript
 };

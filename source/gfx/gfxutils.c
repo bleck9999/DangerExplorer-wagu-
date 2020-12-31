@@ -14,7 +14,7 @@ void gfx_clearscreen(){
     gfx_boxGrey(0, 703, 1279, 719, 0xFF);
     gfx_boxGrey(0, 0, 1279, 15, 0xFF);
     gfx_con_setpos(0, 0);
-    gfx_printf("Tegraexplorer Rewrite | Battery: %3d%%\n", battery >> 8);
+    gfx_printf("Tegraexplorer %d.%d.%d | Battery: %3d%%\n", LP_VER_MJ, LP_VER_MN, LP_VER_BF, battery >> 8);
 
     RESETCOLOR;
 }
@@ -29,9 +29,9 @@ int MakeYesNoHorzMenu(int spacesBetween, u32 bg){
     //return MakeHorizontalMenu(YesNoEntries, ARR_LEN(YesNoEntries), spacesBetween, bg);
 }
 
-int MakeHorizontalMenu(MenuEntry_t *entries, int len, int spacesBetween, u32 bg){
+int MakeHorizontalMenu(MenuEntry_t *entries, int len, int spacesBetween, u32 bg, int startPos){
     u32 initialX = 0, initialY = 0;
-    u32 highlight = 0;
+    u32 highlight = startPos;
     gfx_con_getpos(&initialX, &initialY);
 
     while (1){
