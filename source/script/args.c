@@ -263,6 +263,10 @@ Variable_t solveEquation(scriptCtx_t* ctx, lexarToken_t* tokens, u32 len, u8 sho
                         res.integerType = res.integerType & val.integerType;
                     ELIFT(OR)
                         res.integerType = res.integerType | val.integerType;
+                    ELIFT(BitShiftLeft)
+                        res.integerType = res.integerType << val.integerType;
+                    ELIFT(BitShiftRight)
+                        res.integerType = res.integerType >> val.integerType;
                     else
                         return ErrValue(ERRBADOPERATOR);
                 }
@@ -286,11 +290,18 @@ Variable_t solveEquation(scriptCtx_t* ctx, lexarToken_t* tokens, u32 len, u8 sho
                         res.free = 0;
                     }
                     ELIFT(Minus) {
-                        if (!strcmp(res.stringType + strlen(res.stringType) - strlen(val.stringType), val.stringType)) {
-                            *(res.stringType + strlen(res.stringType) - strlen(val.stringType)) = 0;
+                        u32 lenRes = strlen(res.stringType);
+                        u32 valRes = strlen(val.stringType);
+                        if (!strcmp(res.stringType + lenRes - valRes, val.stringType)) {
+                            char *temp = malloc(lenRes - valRes + 1);
+                            memcpy(temp, res.stringType, lenRes - valRes);
+                            temp[lenRes - valRes] = 0;
+                            freeVariable(res);
+                            res.free = 1;
+                            res.stringType = temp;
                         }
 
-                        if (val.free) free(val.stringType);
+                        freeVariable(val);
                     }
                     ELIFT(Division) {
                         int valLen = strlen(val.stringType);
@@ -301,7 +312,6 @@ Variable_t solveEquation(scriptCtx_t* ctx, lexarToken_t* tokens, u32 len, u8 sho
 
                         char* start = res.stringType;
                         char* find = NULL;
-                        //char** arr = malloc(20); // should be dynamic
                         Vector_t arr = newVec(sizeof(char**), 10);
                         char* temp;
 
@@ -337,6 +347,51 @@ Variable_t solveEquation(scriptCtx_t* ctx, lexarToken_t* tokens, u32 len, u8 sho
                             vecAddElement(&res.vectorType, in);
                         }
                     }
+                    ELIFT(Minus){
+                        if (val.integerType >= res.vectorType.count)
+                            return ErrValue(ERRSYNTAX);
+
+                        res.vectorType.count -= val.integerType;
+                        Vector_t newV = vecCopy(&res.vectorType);
+                        freeVariable(res);
+                        res.vectorType = newV;
+                        res.free = 1;
+                    }
+                    ELIFT(Selector){
+                        if (val.integerType >= res.vectorType.count)
+                            return ErrValue(ERRSYNTAX);
+
+                        Vector_t newV = vecCopyOffset(&res.vectorType, val.integerType);
+                        freeVariable(res);
+                        res.vectorType = newV;
+                        res.free = 1;
+                    }
+                }
+                else if (res.varType == StringType && val.varType == IntType){
+                    if (localOpToken == Minus){
+                        u32 resLen = strlen(res.stringType);
+                        if (resLen < val.integerType)
+                            return ErrValue(ERRSYNTAX);
+
+                        char *temp = utils_copyStringSize(res.stringType, resLen - val.integerType);
+
+                        freeVariable(res);
+                        res.stringType = temp;
+                        res.free = 1;
+                    }
+                    ELIFT(Selector){
+                        u32 resLen = strlen(res.stringType);
+                        if (resLen < val.integerType)
+                            return ErrValue(ERRSYNTAX);
+
+                        char *temp = CpyStr(res.stringType + val.integerType);
+
+                        freeVariable(res);
+                        res.stringType = temp;
+                        res.free = 1;
+                    }
+                    else
+                        return ErrValue(ERRBADOPERATOR);
                 }
                 else
                     return ErrValue(ERRBADOPERATOR);
@@ -345,7 +400,7 @@ Variable_t solveEquation(scriptCtx_t* ctx, lexarToken_t* tokens, u32 len, u8 sho
                 res = val;
             }
         }
-        else if (tokens[i].token >= Plus && tokens[i].token <= OR) {
+        else if (tokens[i].token >= Plus && tokens[i].token <= BitShiftRight) {
             lastToken = tokens[i].token;
         }
     }

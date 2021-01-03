@@ -14,6 +14,7 @@
 #include "../storage/emummc.h"
 #include <utils/util.h>
 #include "../fs/fsutils.h"
+#include <soc/fuse.h>
 
 enum {
     MainExplore = 0,
@@ -22,10 +23,10 @@ enum {
     MainBrowseEmmc,
     MainBrowseEmummc,
     MainTools,
-    MainCauseException,
     MainPartitionSd,
     MainDumpFw,
     MainViewKeys,
+    MainViewCredits,
     MainExit,
     MainPowerOff,
     MainRebootRCM,
@@ -40,10 +41,10 @@ MenuEntry_t mainMenuEntries[] = {
     [MainBrowseEmmc] = {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "Browse EMMC"},
     [MainBrowseEmummc] = {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "Browse EMUMMC"},
     [MainTools] = {.optionUnion = COLORTORGB(COLOR_WHITE) | SKIPBIT, .name = "\n-- Tools --"},
-    [MainCauseException] = {.optionUnion = COLORTORGB(COLOR_RED), .name = "Cause an exception"},
     [MainPartitionSd] = {.optionUnion = COLORTORGB(COLOR_ORANGE), .name = "Partition the sd"},
     [MainDumpFw] = {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "Dump Firmware"},
     [MainViewKeys] = {.optionUnion = COLORTORGB(COLOR_YELLOW), .name = "View dumped keys"},
+    [MainViewCredits] = {.optionUnion = COLORTORGB(COLOR_YELLOW), .name = "Credits"},
     [MainExit] = {.optionUnion = COLORTORGB(COLOR_WHITE) | SKIPBIT, .name = "\n-- Exit --"},
     [MainPowerOff] = {.optionUnion = COLORTORGB(COLOR_VIOLET), .name = "Power off"},
     [MainRebootRCM] = {.optionUnion = COLORTORGB(COLOR_VIOLET), .name = "Reboot to RCM"},
@@ -70,10 +71,6 @@ void HandleEMUMMC(){
     GptMenu(MMC_CONN_EMUMMC);
 }
 
-void CrashTE(){
-    gfx_printf("%d", *((int*)0));
-}
-
 void ViewKeys(){
     gfx_clearscreen();
     for (int i = 0; i < 3; i++){
@@ -88,8 +85,20 @@ void ViewKeys(){
     gfx_printf("\nSave mac key: ");
     PrintKey(dumpedKeys.save_mac_key, AES_128_KEY_SIZE);
 
-    gfx_printf("\n\nPkg1 ID: '%s', kb %d", TConf.pkg1ID, TConf.pkg1ver);
+    u8 fuseCount = 0;
+    for (u32 i = 0; i < 32; i++){
+        if ((fuse_read_odm(7) >> i) & 1)
+            fuseCount++;
+    }
 
+    gfx_printf("\n\nPkg1 ID: '%s' (kb %d)\nFuse count: %d", TConf.pkg1ID, TConf.pkg1ver, fuseCount);
+
+    hidWait();
+}
+
+void ViewCredits(){
+    gfx_clearscreen();
+    gfx_printf("\nTegraexplorer v%d.%d.%d\nBy SuchMemeManySkill\n\nBased on Lockpick_RCM & Hekate, from shchmue & CTCaer", LP_VER_MJ, LP_VER_MN, LP_VER_BF);
     hidWait();
 }
 
@@ -114,7 +123,6 @@ menuPaths mainMenuPaths[] = {
     [MainMountSd] = MountOrUnmountSD,
     [MainBrowseEmmc] = HandleEMMC,
     [MainBrowseEmummc] = HandleEMUMMC,
-    [MainCauseException] = CrashTE,
     [MainPartitionSd] = FormatSD,
     [MainDumpFw] = DumpSysFw,
     [MainViewKeys] = ViewKeys,
@@ -122,6 +130,7 @@ menuPaths mainMenuPaths[] = {
     [MainRebootHekate] = RebootToHekate,
     [MainRebootRCM] = reboot_rcm,
     [MainPowerOff] = power_off,
+    [MainViewCredits] = ViewCredits,
 };
 
 void EnterMainMenu(){

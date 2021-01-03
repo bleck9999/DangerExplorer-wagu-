@@ -37,6 +37,9 @@ enum Tokens {
 	RSBracket,
 	AND,
 	OR,
+	Selector,
+	BitShiftLeft,
+	BitShiftRight,
 	EquationSeperator,
 };
 
@@ -56,7 +59,9 @@ enum Errors {
 	ERRNOVAR,
 	ERRNOFUNC,
 	ERRINACTIVEINDENT,
-	ERRDIVBYZERO
+	ERRDIVBYZERO,
+	ERRFATALFUNCFAIL,
+	ERRESCSCRIPT,
 };
 
 enum Variables {
