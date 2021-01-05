@@ -15,7 +15,7 @@ LPVERSION_BUGFX := 2
 
 ################################################################################
 
-TARGET := TegraExplorer
+TARGET := DangerExplorer
 BUILDDIR := build
 OUTPUTDIR := output
 SOURCEDIR = source

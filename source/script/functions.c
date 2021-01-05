@@ -226,16 +226,20 @@ scriptFunction(funcSetColor){
 }
 
 scriptFunction(funcPause){
-	return newVar(IntType, 0, hidWait()->buttons);
+	return newVar(IntType, 0, hidWait()->buttons); //this can stay
+	//despite its name its actually the only way to get controller input
+	//so you basically couldnt use any in-script menus
+	//this might mean "press A to confirm" 
+	//but it might also be "press A for emmc, press X for emummc"
 }
 
 // Args: Int
 scriptFunction(funcWait){
-	u32 timer = get_tmr_ms();
+	/*u32 timer = get_tmr_ms();
 	while (timer + vars[0].integerType > get_tmr_ms()){
 		gfx_printf("<Wait %d seconds> \r", (vars[0].integerType - (get_tmr_ms() - timer)) / 1000);
 		hidRead();
-	}
+	}*/
 	return NullVar;
 }
 
