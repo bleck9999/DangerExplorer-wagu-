@@ -13,7 +13,7 @@ void gfx_printTopInfo() {
 	bq24193_get_property(BQ24193_ChargeStatus, &current_charge_status);
     SETCOLOR(COLOR_DEFAULT, COLOR_WHITE);
     gfx_con_setpos(0, 0);
-    gfx_printf("Tegraexplorer %d.%d.%d | Battery: %d%% %c\n", LP_VER_MJ, LP_VER_MN, LP_VER_BF, battery >> 8, ((current_charge_status) ? 129 : 32));
+    gfx_printf("Dangerexplorer %d.%d.%d | Battery: %d%% %c\n", LP_VER_MJ, LP_VER_MN, LP_VER_BF, battery >> 8, ((current_charge_status) ? 129 : 32));
     RESETCOLOR;
 }
 
@@ -33,7 +33,7 @@ MenuEntry_t YesNoEntries[] = {
 };
 
 int MakeYesNoHorzMenu(int spacesBetween, u32 bg){
-    return MakeHorizontalMenu(YesNoEntries, ARR_LEN(YesNoEntries), spacesBetween, bg, 0);
+    return 1;
 }
 
 int MakeHorizontalMenu(MenuEntry_t *entries, int len, int spacesBetween, u32 bg, int startPos){
